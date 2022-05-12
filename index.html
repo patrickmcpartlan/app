@@ -2,12 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="https://openlayers.org/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="https://lincolnwaylaw.com/wp-content/uploads/2021/09/iadd-logo-trans-bg.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Using OpenLayers with Vite</title>
+    <title>IADD Map</title>
   </head>
   <body>
-    <div id="map"></div>
+    <div class="map-container">
+      <div id="toolbar" class="toolbar"></div>
+      <div id="map" class="map">
+          <div class="nosupport">Your browser doesn't seem to support this application. Please, update it.</div>
+      </div>
+          <div id="messageBar" class="message-bar"></div>
+          <div id="coordinates"></div>
+          <div id="tools">
+            <a id="clear">Clear</a>
+            <a id="download" download="features.json">Download</a>
+          </div>
+  </div>
+
+
     <script type="module" src="./main.js"></script>
   </body>
 </html>

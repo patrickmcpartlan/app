@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://unpkg.com/ol-popup@4.0.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/ol-popup@4.0.0/src/ol-popup.css" />
     <title>IADD Map</title>
   </head>
   <body>
@@ -17,6 +19,8 @@
       <button id="btnCrosshair" title="Live Location"> Location
         <i class="fa fa-crosshairs fa-2x"></i>
       </button>
+      <div id="info">&nbsp;</div>
+
           <!-- <div id="messageBar" class="message-bar"></div>
           <div id="coordinates"></div> -->
           <div id="tools">
@@ -32,15 +36,9 @@
 
           <button onclick="document.location='about.html'">about</button> 
           
-        <button onclick="select_feature()" id="select_feature" disabled = "false">Select</button>
-        <button onclick="create_feature()" id="create_feature" disabled = "true">Create</button>
-        <button onclick="modify_feature()" id="modify_feature" disabled = "false">Modify </button>
-        <button onclick="delete_feature()" id="delete_feature" disabled = "true">Delete feature</button>
 
 
-        <button onclick="toggle_editing()" id="toggle_editing">Toggle Editing</button>
 
-
-    <script type="module" src="./main.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>

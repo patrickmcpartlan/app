@@ -17,5 +17,17 @@
     "ol-layerswitcher": "^3.8.3",
     "ol-popup": "^4.0.0",
     "parcel": "^2.0.0"
-  }
+  },
+  "description": "This example demonstrates how the `ol` package can be used with [Vite](https://vitejs.dev/).",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrickmcpartlan/app.git"
+  },
+  "author": "PJM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/patrickmcpartlan/app/issues"
+  },
+  "homepage": "https://github.com/patrickmcpartlan/app#readme"
 }

@@ -117,9 +117,7 @@ var vectorSource = new VectorLayer({
 });
 
 const vectorX = new VectorLayer({
-  source: vectorSource, 
-  style: styleDD
-})
+  source: vectorSource})
 
 const style = new Style({
   fill: new Fill({
@@ -167,7 +165,7 @@ const map = new Map({
           zIndex:2,
       })
     })
-    // , ddBoundariesWFS
+    , ddBoundaries
     , illinois,
     // vectorX,
     

@@ -2,7 +2,8 @@
   "name": "app",
   "version": "1.0.0",
   "scripts": {
-    "start": "vite",
+    
+    "start": "node index.js",
     "build": "vite build",
     "serve": "vite preview"
   },

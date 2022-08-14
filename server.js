@@ -1,15 +1,20 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const path = require('path');
  
-app.get('/', (req, res) => {
-  res
-    .send('Hello pp server is running')
+// app.get('/', (req, res) => {
+//   res
+//     .sendFile(path.join(__dirname, '/index.html'))
+// });
+
+app.get('/', function(req, res) {
+  res.sendFile('index.html', {root: __dirname })
 });
  
 // Start the server
 app.listen(process.env.PORT || port, () => {
-  console.log(`App listening on port ${PORT}`);
+  console.log(`App listening on port ${port}`);
   console.log('Press Ctrl+C to quit.');
 });
 

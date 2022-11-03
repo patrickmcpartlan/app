@@ -5,6 +5,8 @@ import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import 'ol/ol.css';
 
+
+
 import GeoJSON from 'ol/format/GeoJSON';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -12,14 +14,11 @@ import {
   Modify,
   Select,
   defaults as defaultInteractions,
-  defaults,
 } from 'ol/interaction';
 import {fromLonLat} from 'ol/proj';
 import sync from 'ol-hashed';
 import DragAndDrop from 'ol/interaction/DragAndDrop';
-import Draw from 'ol/interaction/Draw';
 import Zoom from 'ol/control/Zoom';
-import Rotate from 'ol/control/Rotate';
 import Attribution from 'ol/control/Attribution';
 import ZoomSlider from 'ol/control/ZoomSlider';
 import MousePosition from 'ol/control/MousePosition';
@@ -35,11 +34,11 @@ import LayerSwitcher from 'ol-layerswitcher';
 import Group from 'ol/layer/Group';
 import Tile from 'ol/layer/Layer';
 import { Geolocation } from 'ol';
-import 'ol-popup/src/ol-popup.css';
 import {bbox} from 'ol/loadingstrategy';
 
 import {Fill, Stroke, Style} from 'ol/style';
 import { createStringXY } from 'ol/coordinate';
+import olGeocoder from 'ol-geocoder';
 
 
 const select = new Select({
@@ -59,16 +58,6 @@ const view = new View({
 });
 
 
-const ddBoundaries =  new TileLayer({
-  title: 'Drainage Docs Boundaries',
-  source: new TileWMS({
-    url: 'http://localhost:8080/geoserver/wms',
-    params: {'LAYERS': 'cite:IADD_Sourced_DD_V2', 'TILED': true},
-    serverType: 'geoserver',
-    // Countries have transparency, so do not fade tiles:
-    transition: 0,
-  }),
-});
 
 const illinois = new TileLayer({
   title: "Illinois",
@@ -80,12 +69,24 @@ const illinois = new TileLayer({
   }),
 })
 
+const k3will = new TileLayer({
+  title: "County Drainage District Boundaries 2022",
+  source: new TileWMS({
+    url: 'http://localhost:8080/geoserver/wms',
+    params: {'LAYERS': 'cite:k3will', 'TILED': true},
+    serverType: 'geoserver',
+    transition: 0,
+  }),
+})
+
 var styleDD = new ol.style.Style({
   stroke: new ol.style.Stroke({
       color: '#DE1010',
       width: 3,
   })
 });
+
+
 
 
 var vectorSource = new VectorLayer({
@@ -136,7 +137,7 @@ const map = new Map({
   layers: [ new VectorLayer({
       title: 'Updated County Drainage Districts',
       source: new VectorSource({
-          url: "http://localhost:8080/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite%3AIL_Drainage_Districts&maxFeatures=50&outputFormat=application%2Fjson",
+          url: "http://localhost:8080/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite%3AMergedDD__&maxFeatures=50&outputFormat=application%2Fjson",
           format: new GeoJSON({
             defaultDataProjection: 'EPSG:4326'
           }),
@@ -165,8 +166,28 @@ const map = new Map({
           zIndex:2,
       })
     })
-    , ddBoundaries
+    ,
+    new VectorLayer({
+      title:'Boundaries From Document',
+      source: new VectorSource({
+        url: "http://localhost:8080/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite%3AIADD_Sourced_DD_V2&maxFeatures=50&outputFormat=application%2Fjson",
+        format: new GeoJSON({
+          defaultDataProjection: 'EPSG:4326'
+        }),
+        wrapX: false,    
+      }, {
+        name: 'Drainage District Boundaries From Docs',
+        tileOptions: {crossOriginKeyword: 'anonymous'},
+        transitionEffect: null
+      }, ), style: function (feature) {
+        const color = feature.get('COLOR') || 'rgba(246, 245, 247, 0.05)';
+
+        style.getFill().setColor(color);
+        return style;
+      },
+    })
     , illinois,
+    k3will, vectorSource,
     // vectorX,
     
     new TileLayer({
@@ -229,7 +250,7 @@ const displayFeatureInfo = function (pixel) {
 
   const info = document.getElementById('info');
   if (feature) {
-    info.innerHTML = feature.get('name') || '&nbsp;';
+    info.innerHTML = feature.get('DistrictName' ) || '&nbsp;';
   } else {
     info.innerHTML = '&nbsp;';
   }
@@ -369,4 +390,27 @@ $("#btnCrosshair").on("click", function (event) {
     } else {
         stopAutolocation();
     }
+});
+
+
+// Geocoder
+
+var geocoder = new olGeocoder('nominatim', {
+  provider: 'mapquest',
+  key: 'HlrLb12WQRlz48MTGxmXw0e0urf6DaZN',
+  lang: 'en-US', //en-US, pt-BR, fr-FR
+  placeholder: 'Search for ...',
+  targetType: 'text-input',
+  limit: 5,
+  keepOpen: true
+});
+map.addControl(geocoder);
+
+geocoder.on('addresschosen', function(evt){
+  var feature = evt.feature,
+      coord = evt.coordinate,
+      address = evt.address;
+  // some popup solution
+  content.innerHTML = '<p>'+ address.formatted +'</p>';
+  overlay.setPosition(coord);
 });

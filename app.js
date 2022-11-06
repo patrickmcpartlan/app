@@ -1,6 +1,6 @@
 import './style.css';
 import 'ol-layerswitcher/dist/ol-layerswitcher.css';
-import {Map, Overlay, View} from 'ol';
+import {Map, Overlay, VectorTile, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import 'ol/ol.css';
@@ -39,6 +39,10 @@ import {bbox} from 'ol/loadingstrategy';
 import {Fill, Stroke, Style} from 'ol/style';
 import { createStringXY } from 'ol/coordinate';
 import olGeocoder from 'ol-geocoder';
+import Layer from 'ol/layer/Layer';
+import Vector from 'ol/layer/Vector';
+
+import WMSCapabilities from 'ol/format/WMSCapabilities';
 
 
 const select = new Select({
@@ -54,8 +58,14 @@ const modify = new Modify({
 
 const view = new View({
   center: fromLonLat([-88.75, 41.85]),
-  zoom: 10,
+  zoom: 10
+  
 });
+
+
+let url22 = "https://levees.sec.usace.army.mil:443/api-local/leveed-areas?system_id=5105210001&embed=geometry&format=geo"
+
+
 
 
 
@@ -86,6 +96,17 @@ var styleDD = new ol.style.Style({
   })
 });
 
+
+
+const usaceLeveedAreas = new TileLayer({
+  title: "USACE Leveed Areas Boundaries",
+  source: new TileWMS({
+    url: 'http://localhost:8080/geoserver/wms',
+    params: {'LAYERS': 'cite:leveedAreasUSACE', 'TILED': true},
+    serverType: 'geoserver',
+    transition: 0,
+  }),
+})
 
 
 
@@ -154,7 +175,7 @@ const map = new Map({
       },
     }), new ImageLayer({
       title: '1970 Illinois Drainage Districts Scans',
-      // extent: [-180, -90, -180, 90],
+      // extent: [-180, -90, -180, 90extent: fromLonLat([-91.513518, 36.9699719,-87.495214, 42.5083479]),
       source: new ImageWMS({
           projection: 'EPSG:4326',
           url: 'http://localhost:8080/geoserver/wms',
@@ -187,8 +208,12 @@ const map = new Map({
       },
     })
     , illinois,
-    k3will, vectorSource,
+    k3will, vectorSource, usaceLeveedAreas,
+    // vectorLayerLeveedArea,
+    // features,
     // vectorX,
+    
+
     
     new TileLayer({
       title: 'OSM',
@@ -414,3 +439,57 @@ geocoder.on('addresschosen', function(evt){
   content.innerHTML = '<p>'+ address.formatted +'</p>';
   overlay.setPosition(coord);
 });
+
+//Attempt 1
+  // const leveedAreasSource = new ol.source.VectorTile({
+  //   format: new GeoJSON().readFeatures(),
+  //   url: url22
+  // });
+
+  // const leveedAreasLayer = new ol.layer.VectorTile({
+  //   source: leveedAreasSource.getSource().getFeatures()
+  // });
+
+  
+  // map.addLayer(leveedAreasLayer);
+
+// Attempt 2
+  // var leveedAreasSource2 = new VectorSource({
+  //   url: url22,
+  //   format: new GeoJSON({featureProjection: "EPSG:4326"})
+  // });
+
+  // const leveedAreasLayer2 = new ol.layer.TileWMS({
+  //   source: leveedAreasSource2
+  // });
+  // map.addLayer(leveedAreasLayer2)
+
+
+
+///attempt 3
+// const polySource = new ol.source.Vector({
+//   url: url22,
+//   format: new GeoJSON().readFeatures({featureProjection: "EPSG:4326"})
+// });
+
+// const polyLayer = new ol.layer.Vector({
+//   source: polySource
+// });
+/////////Runs into issues for unsupported geojson type
+
+
+///attempt 4
+// const vectorLayerLeveedArea = new VectorLayer({
+//   background: '#1a2b39',
+//   source: new VectorSource({
+//     url: url22,
+//     projection: "EPSG:4326",
+//     format: new GeoJSON(),
+//   }),
+//   style: function (feature) {
+//     const color = feature.get('COLOR') || '#eeeeee';
+//     style.getFill().setColor(color);
+//     return style;
+//   },
+// });
+

@@ -8,9 +8,15 @@ const path = require('path');
 //     .sendFile(path.join(__dirname, '/index.html'))
 // });
 
+// Create Restful service 
+
 app.get('/', function(req, res) {
   res.sendFile('index.html', {root: __dirname })
 });
+
+//Post request with WFS-T features
+
+
  
 // Start the server
 app.listen(process.env.PORT || port, () => {

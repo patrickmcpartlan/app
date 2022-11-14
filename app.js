@@ -1,5 +1,5 @@
 import './style.css';
-import 'ol-layerswitcher/dist/ol-layerswitcher.css';
+import '/node_modules/ol-layerswitcher/dist/ol-layerswitcher.css'
 import {Map, Overlay, VectorTile, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
@@ -43,6 +43,7 @@ import Layer from 'ol/layer/Layer';
 import Vector from 'ol/layer/Vector';
 
 import WMSCapabilities from 'ol/format/WMSCapabilities';
+import { transformExtent } from 'ol/proj';
 
 
 const select = new Select({
@@ -56,11 +57,27 @@ const modify = new Modify({
 });
 
 
+
+// An array of numbers representing an extent: [minx, miny, maxx, maxy].
+ 
+var maxExtent = fromLonLat([-87.4952140000000043,36.9699719999999985,-91.5135180000000048, 42.5083479999999980])
+
 const view = new View({
-  center: fromLonLat([-88.75, 41.85]),
-  zoom: 10
-  
+  center: [-9920914.790650634, 4889523.777846614],
+  zoom: 4,
+  // minZoom: 6.5,
+  // extent: [-10020914.341856, 5211017.966314, -96.3456, 6636950.728974], //Lake Michigan
+  extent: [-10620914.341856, 4289523.777846614, -9120914.790650634, 5289523.777846614],
 });
+
+// const view = new View({
+//   // center: fromLonLat([-89.198326, 40.064990]),
+//   center: [-9920914.790650634, 4889523.777846614], //x,y
+//   zoom: 8, 
+//   minZoom: 7.5,
+//   // extent: fromLonLat([-87.4952140000000043,36.9699719999999985,-91.5135180000000048, 42.5083479999999980]),
+//   extent: [-10187238.224461077, 5237434.309635073, -9713006.067917068, 4422340.778897436]
+// });
 
 
 let url22 = "https://levees.sec.usace.army.mil:443/api-local/leveed-areas?system_id=5105210001&embed=geometry&format=geo"
@@ -95,6 +112,60 @@ var styleDD = new ol.style.Style({
       width: 3,
   })
 });
+
+//Attempt 1
+  // const leveedAreasSource = new ol.source.VectorTile({
+  //   format: new GeoJSON().readFeatures(),
+  //   url: url22
+  // });
+
+  // const leveedAreasLayer = new ol.layer.VectorTile({
+  //   source: leveedAreasSource.getSource().getFeatures()
+  // });
+
+  
+  // map.addLayer(leveedAreasLayer);
+
+// Attempt 2
+  // var leveedAreasSource2 = new VectorSource({
+  //   url: url22,
+  //   format: new GeoJSON({featureProjection: "EPSG:4326"})
+  // });
+
+  // const leveedAreasLayer2 = new ol.layer.TileWMS({
+  //   source: leveedAreasSource2
+  // });
+  // map.addLayer(leveedAreasLayer2)
+
+
+
+// //attempt 3
+// const polySource = new ol.source.Vector({
+//   url: url22,
+//   format: new GeoJSON().readFeatures({featureProjection: "EPSG:4326"})
+// });
+
+// const polyLayer = new ol.layer.Vector({
+//   source: polySource
+// });
+// /////////Runs into issues for unsupported geojson type
+
+
+// ///attempt 4
+// const vectorLayerLeveedArea = new VectorLayer({
+//   background: '#1a2b39',
+//   source: new VectorSource({
+//     url: url22,
+//     projection: "EPSG:4326",
+//     format: new GeoJSON(),
+//   }),
+//   style: function (feature) {
+//     const color = feature.get('COLOR') || '#eeeeee';
+//     style.getFill().setColor(color);
+//     return style;
+//   },
+// });
+
 
 
 
@@ -191,7 +262,7 @@ const map = new Map({
     new VectorLayer({
       title:'Boundaries From Document',
       source: new VectorSource({
-        url: "http://localhost:8080/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite%3AIADD_Sourced_DD_V2&maxFeatures=50&outputFormat=application%2Fjson",
+        url: "http://localhost:8080/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cite%3AIADD_Sourced_DD_V2&maxFeatures=500&outputFormat=application%2Fjson",
         format: new GeoJSON({
           defaultDataProjection: 'EPSG:4326'
         }),
@@ -208,8 +279,10 @@ const map = new Map({
       },
     })
     , illinois,
-    k3will, vectorSource, usaceLeveedAreas,
+    k3will, 
+    vectorSource, usaceLeveedAreas,
     // vectorLayerLeveedArea,
+    // polyLayer,
     // features,
     // vectorX,
     
@@ -254,7 +327,7 @@ const map = new Map({
   ],view: view,
 });
 //have the map load the previous exent from the previous session
-sync(map);
+// sync(map);
 
 const featureOverlay = new VectorLayer({
   source: new VectorSource(),
@@ -439,57 +512,4 @@ geocoder.on('addresschosen', function(evt){
   content.innerHTML = '<p>'+ address.formatted +'</p>';
   overlay.setPosition(coord);
 });
-
-//Attempt 1
-  // const leveedAreasSource = new ol.source.VectorTile({
-  //   format: new GeoJSON().readFeatures(),
-  //   url: url22
-  // });
-
-  // const leveedAreasLayer = new ol.layer.VectorTile({
-  //   source: leveedAreasSource.getSource().getFeatures()
-  // });
-
-  
-  // map.addLayer(leveedAreasLayer);
-
-// Attempt 2
-  // var leveedAreasSource2 = new VectorSource({
-  //   url: url22,
-  //   format: new GeoJSON({featureProjection: "EPSG:4326"})
-  // });
-
-  // const leveedAreasLayer2 = new ol.layer.TileWMS({
-  //   source: leveedAreasSource2
-  // });
-  // map.addLayer(leveedAreasLayer2)
-
-
-
-///attempt 3
-// const polySource = new ol.source.Vector({
-//   url: url22,
-//   format: new GeoJSON().readFeatures({featureProjection: "EPSG:4326"})
-// });
-
-// const polyLayer = new ol.layer.Vector({
-//   source: polySource
-// });
-/////////Runs into issues for unsupported geojson type
-
-
-///attempt 4
-// const vectorLayerLeveedArea = new VectorLayer({
-//   background: '#1a2b39',
-//   source: new VectorSource({
-//     url: url22,
-//     projection: "EPSG:4326",
-//     format: new GeoJSON(),
-//   }),
-//   style: function (feature) {
-//     const color = feature.get('COLOR') || '#eeeeee';
-//     style.getFill().setColor(color);
-//     return style;
-//   },
-// });
 
